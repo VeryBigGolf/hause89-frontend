@@ -63,7 +63,7 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push('/dashboard');
+      router.push('/shops');
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
@@ -76,7 +76,6 @@ export default function RegisterPage() {
       <div className="card max-w-md w-full p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="text-4xl mb-4">🌿</div>
           <h1 className="text-2xl font-bold text-gray-800">Create Account</h1>
           <p className="text-gray-600 mt-2">Join Serenity Spa and start booking</p>
         </div>
