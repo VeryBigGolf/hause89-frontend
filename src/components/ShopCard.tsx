@@ -30,9 +30,6 @@ export default function ShopCard({ shop, showBookButton = true }: ShopCardProps)
       {/* Shop Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-teal-50 rounded-lg flex items-center justify-center">
-            <span className="text-2xl">💆</span>
-          </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-800">{shop.name}</h3>
             <p className="text-sm text-gray-500">Massage Shop</p>
@@ -44,7 +41,6 @@ export default function ShopCard({ shop, showBookButton = true }: ShopCardProps)
       <div className="space-y-3 mb-6">
         {/* Address */}
         <div className="flex items-start gap-3">
-          <span className="text-gray-400 text-lg">📍</span>
           <div>
             <p className="text-xs text-gray-400 uppercase">Address</p>
             <p className="text-gray-700">{shop.address}</p>
@@ -53,7 +49,6 @@ export default function ShopCard({ shop, showBookButton = true }: ShopCardProps)
 
         {/* Phone */}
         <div className="flex items-start gap-3">
-          <span className="text-gray-400 text-lg">📞</span>
           <div>
             <p className="text-xs text-gray-400 uppercase">Phone</p>
             <p className="text-gray-700">{shop.tel || 'Not provided'}</p>
@@ -62,7 +57,6 @@ export default function ShopCard({ shop, showBookButton = true }: ShopCardProps)
 
         {/* Hours */}
         <div className="flex items-start gap-3">
-          <span className="text-gray-400 text-lg">🕐</span>
           <div>
             <p className="text-xs text-gray-400 uppercase">Hours</p>
             <p className="text-gray-700">

@@ -19,26 +19,39 @@ export default function ShopForm({ shop, onSubmit, onCancel, loading = false }: 
   });
   const [error, setError] = useState('');
 
+  const extractTimeForInput = (value: string) => {
+    if (/^\d{2}:\d{2}$/.test(value)) return value;
+
+    const isoTimeMatch = value.match(/T(\d{2}:\d{2})/);
+    if (isoTimeMatch) return isoTimeMatch[1];
+
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      return date.toTimeString().slice(0, 5);
+    }
+
+    return '';
+  };
+
   useEffect(() => {
     if (shop) {
-      // Convert ISO date to HH:MM format for time input
-      const formatTime = (dateString: string) => {
-        try {
-          const date = new Date(dateString);
-          return date.toTimeString().slice(0, 5);
-        } catch {
-          return dateString;
-        }
-      };
-
       setFormData({
         name: shop.name,
         address: shop.address,
         tel: shop.tel || '',
-        openTime: formatTime(shop.openTime),
-        closeTime: formatTime(shop.closeTime),
+        openTime: extractTimeForInput(shop.openTime) || '09:00',
+        closeTime: extractTimeForInput(shop.closeTime) || '21:00',
       });
+      return;
     }
+
+    setFormData({
+      name: '',
+      address: '',
+      tel: '',
+      openTime: '09:00',
+      closeTime: '21:00',
+    });
   }, [shop]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -68,17 +81,49 @@ export default function ShopForm({ shop, onSubmit, onCancel, loading = false }: 
       return;
     }
 
-    try {
-      // Convert time strings to ISO format for the API
-      const today = new Date().toISOString().split('T')[0];
+    if (!/^\d{2}:\d{2}$/.test(formData.openTime) || !/^\d{2}:\d{2}$/.test(formData.closeTime)) {
+      setError('Please provide valid opening and closing times');
+      return;
+    }
 
-      await onSubmit({
+    const [openHour, openMinute] = formData.openTime.split(':').map(Number);
+    const [closeHour, closeMinute] = formData.closeTime.split(':').map(Number);
+    const openTotalMinutes = openHour * 60 + openMinute;
+    const closeTotalMinutes = closeHour * 60 + closeMinute;
+
+    if (!shop && closeTotalMinutes <= openTotalMinutes) {
+      setError('Closing time must be after opening time');
+      return;
+    }
+
+    try {
+      // Build ISO 8601 format: YYYY-MM-DDTHH:mm:ssZ
+      const buildIsoTime = (timePart: string) => {
+        const [hours, minutes] = timePart.split(':').map(Number);
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const [yyyy, mm, dd] = today.split('-');
+        const hh = String(hours).padStart(2, '0');
+        const min = String(minutes).padStart(2, '0');
+        
+        return `${yyyy}-${mm}-${dd}T${hh}:${min}:00Z`;
+      };
+
+      const openTimeIso = buildIsoTime(formData.openTime);
+      const closeTimeIso = buildIsoTime(formData.closeTime);
+
+      const payload: Omit<Shop, '_id'> = {
         name: formData.name.trim(),
         address: formData.address.trim(),
-        tel: formData.tel.trim(),
-        openTime: `${today}T${formData.openTime}:00.000Z`,
-        closeTime: `${today}T${formData.closeTime}:00.000Z`,
-      } as Omit<Shop, '_id'>);
+        tel: formData.tel.trim() || (shop?.tel ?? ''),
+        openTime: openTimeIso,
+        closeTime: closeTimeIso,
+      };
+
+      console.log('Payload being sent:', payload);
+      console.log('openTime format:', openTimeIso);
+      console.log('closeTime format:', closeTimeIso);
+
+      await onSubmit(payload);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save shop');
     }
