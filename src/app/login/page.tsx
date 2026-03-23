@@ -42,10 +42,7 @@ export default function LoginPage() {
       <div className="card max-w-md w-full p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
-          <p className="text-gray-600 mt-2">
-            Sign in to your Serenity Spa account
-          </p>
+          <h1 className="text-2xl font-bold text-gray-800">Login</h1>
         </div>
 
         {/* Error Message */}

@@ -135,9 +135,6 @@ export default function NewAppointmentPage() {
             <h1 className="text-2xl font-bold text-gray-800">
               Book Appointment
             </h1>
-            <p className="text-gray-600 mt-2">
-              Schedule your next massage session
-            </p>
           </div>
 
           {/* Limit Warning */}
@@ -158,9 +155,9 @@ export default function NewAppointmentPage() {
 
           {/* Slots Info */}
           {!isAdmin && canBook && (
-            <div className="bg-teal-50 border border-teal-200 text-teal-700 px-6 py-4 rounded-lg mb-6 text-center">
+            <div className="bg-teal-50 border border-teal-200 text-black px-6 py-4 rounded-lg mb-6 text-center">
               <p>
-                You have <strong>{remainingSlots}</strong> appointment slot
+                You have {remainingSlots} appointment slot
                 {remainingSlots !== 1 ? "s" : ""} remaining
               </p>
             </div>
@@ -179,7 +176,7 @@ export default function NewAppointmentPage() {
               {/* Shop Selection */}
               <div>
                 <label htmlFor="shop" className="label">
-                  Select Massage Shop *
+                  Select Massage Shop
                 </label>
                 <select
                   id="shop"
@@ -245,7 +242,7 @@ export default function NewAppointmentPage() {
               {/* Date Selection */}
               <div>
                 <label htmlFor="date" className="label">
-                  Appointment Date *
+                  Appointment Date
                 </label>
                 <input
                   id="date"

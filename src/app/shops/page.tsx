@@ -19,10 +19,6 @@ export default async function ShopsPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Massage Shops</h1>
-        <p className="text-gray-600">
-          Discover our collection of premium massage shops and book your
-          relaxation session.
-        </p>
       </div>
 
       {/* Error State */}
