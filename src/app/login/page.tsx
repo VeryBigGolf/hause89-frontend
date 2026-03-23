@@ -1,50 +1,51 @@
-'use client';
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+"use client";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        setError("Invalid email or password");
         setLoading(false);
         return;
       }
 
-      router.push('/dashboard');
+      router.push("/shops");
       router.refresh();
     } catch {
-      setError('An error occurred. Please try again.');
+      setError("An error occurred. Please try again.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-amber-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-teal-50 to-amber-50 py-12 px-4">
       <div className="card max-w-md w-full p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="text-4xl mb-4">🌿</div>
           <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
-          <p className="text-gray-600 mt-2">Sign in to your Serenity Spa account</p>
+          <p className="text-gray-600 mt-2">
+            Sign in to your Serenity Spa account
+          </p>
         </div>
 
         {/* Error Message */}
@@ -91,15 +92,18 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full btn-primary py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
         {/* Register Link */}
         <div className="mt-8 text-center">
           <p className="text-gray-600">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-teal-600 font-semibold hover:underline">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/register"
+              className="text-teal-600 font-semibold hover:underline"
+            >
               Create one
             </Link>
           </p>

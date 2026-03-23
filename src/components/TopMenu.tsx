@@ -17,8 +17,7 @@ export default function TopMenu() {
       <div className={styles.container}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          <span className={styles.logoIcon}>🌿</span>
-          <span className={styles.logoText}>Serenity Spa</span>
+          <span className={styles.logoText}>Hause89 Spa</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -29,12 +28,11 @@ export default function TopMenu() {
 
           {session?.user ? (
             <>
-              <Link href="/dashboard" className={styles.navLink}>
-                Dashboard
-              </Link>
-              <Link href="/appointments" className={styles.navLink}>
-                My Appointments
-              </Link>
+              {session.user.role !== 'admin' && (
+                <Link href="/appointments" className={styles.navLink}>
+                  My Appointments
+                </Link>
+              )}
 
               {session.user.role === 'admin' && (
                 <>
@@ -89,12 +87,11 @@ export default function TopMenu() {
 
           {session?.user ? (
             <>
-              <Link href="/dashboard" className={styles.mobileNavLink}>
-                Dashboard
-              </Link>
-              <Link href="/appointments" className={styles.mobileNavLink}>
-                My Appointments
-              </Link>
+              {session.user.role !== 'admin' && (
+                <Link href="/appointments" className={styles.mobileNavLink}>
+                  My Appointments
+                </Link>
+              )}
 
               {session.user.role === 'admin' && (
                 <>

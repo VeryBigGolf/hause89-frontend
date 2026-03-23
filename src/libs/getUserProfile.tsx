@@ -1,5 +1,10 @@
 export default async function getUserProfile(token: string) {
-  const response = await fetch(`${process.env.BACKEND_URL || 'http://localhost:5000/api/v1'}/auth/me`, {
+  const baseUrl =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    'http://localhost:5000/api/v1';
+
+  const response = await fetch(`${baseUrl}/auth/me`, {
     method: 'GET',
     headers: {
       authorization: `Bearer ${token}`,
