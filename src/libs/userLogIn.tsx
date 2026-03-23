@@ -1,5 +1,10 @@
 export default async function userLogIn(email: string, password: string) {
-  const response = await fetch(`${process.env.BACKEND_URL || 'http://localhost:5000/api/v1'}/auth/login`, {
+  const baseUrl =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    'http://localhost:5000/api/v1';
+
+  const response = await fetch(`${baseUrl}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -8,7 +13,8 @@ export default async function userLogIn(email: string, password: string) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to login');
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to login');
   }
 
   return await response.json();
