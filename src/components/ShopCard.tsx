@@ -1,23 +1,26 @@
-'use client';
-import { Shop } from '../../interfaces';
-import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+"use client";
+import { Shop } from "../../interfaces";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 interface ShopCardProps {
   shop: Shop;
   showBookButton?: boolean;
 }
 
-export default function ShopCard({ shop, showBookButton = true }: ShopCardProps) {
+export default function ShopCard({
+  shop,
+  showBookButton = true,
+}: ShopCardProps) {
   const { data: session } = useSession();
 
   // Format time helper
   const formatTime = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
+      return date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
         hour12: true,
       });
     } catch {
@@ -51,7 +54,7 @@ export default function ShopCard({ shop, showBookButton = true }: ShopCardProps)
         <div className="flex items-start gap-3">
           <div>
             <p className="text-xs text-gray-400 uppercase">Phone</p>
-            <p className="text-gray-700">{shop.tel || 'Not provided'}</p>
+            <p className="text-gray-700">{shop.tel || "Not provided"}</p>
           </div>
         </div>
 
@@ -70,12 +73,14 @@ export default function ShopCard({ shop, showBookButton = true }: ShopCardProps)
       {showBookButton && (
         <div>
           {session?.user ? (
-            <Link
-              href={`/appointments/new?shopId=${shop._id}`}
-              className="block w-full btn-primary text-center py-3"
-            >
-              Book Appointment
-            </Link>
+            session.user.role !== "admin" ? (
+              <Link
+                href={`/appointments/new?shopId=${shop._id}`}
+                className="block w-full btn-primary text-center py-3"
+              >
+                Book Appointment
+              </Link>
+            ) : null
           ) : (
             <Link
               href="/login"
