@@ -82,9 +82,6 @@ export default function AppointmentCard({
 
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-teal-50 rounded-lg flex items-center justify-center">
-            <span className="text-2xl">💆</span>
-          </div>
           <div>
             <h3 className="font-semibold text-gray-800">
               {shop?.name || 'Unknown Shop'}
@@ -96,10 +93,6 @@ export default function AppointmentCard({
             )}
           </div>
         </div>
-
-        <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-          Confirmed
-        </span>
       </div>
 
       <div className="mt-4 pt-4 border-t border-gray-100">
@@ -135,13 +128,11 @@ export default function AppointmentCard({
         ) : (
           <>
             <div className="flex items-center gap-2 text-gray-600 mb-2">
-              <span>📅</span>
               <span>{formatDate(appointment.apptDate)}</span>
             </div>
 
             {shop && (
               <div className="flex items-center gap-2 text-gray-500 text-sm">
-                <span>📍</span>
                 <span>{shop.address}</span>
               </div>
             )}
