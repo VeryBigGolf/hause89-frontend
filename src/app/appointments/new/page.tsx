@@ -1,34 +1,40 @@
-'use client';
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import getShops from '@/libs/getShops';
-import getAppointments from '@/libs/getAppointments';
-import createAppointment from '@/libs/createAppointment';
-import { Shop } from '../../../../interfaces';
-import Link from 'next/link';
+"use client";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import getShops from "@/libs/getShops";
+import getAppointments from "@/libs/getAppointments";
+import createAppointment from "@/libs/createAppointment";
+import { Shop } from "../../../../interfaces";
+import Link from "next/link";
 
 export default function NewAppointmentPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const preselectedShopId = searchParams.get('shopId');
+  const preselectedShopId = searchParams.get("shopId");
 
   const [shops, setShops] = useState<Shop[]>([]);
-  const [selectedShopId, setSelectedShopId] = useState(preselectedShopId || '');
-  const [appointmentDate, setAppointmentDate] = useState('');
+  const [selectedShopId, setSelectedShopId] = useState(preselectedShopId || "");
+  const [appointmentDate, setAppointmentDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [appointmentCount, setAppointmentCount] = useState(0);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
+    if (status === "unauthenticated") {
+      router.push("/login");
       return;
     }
 
-    if (status === 'authenticated') {
+    if (status === "authenticated") {
+      // Redirect admin to admin appointments page
+      if (session?.user?.role === "admin") {
+        router.push("/admin/appointments");
+        return;
+      }
+
       loadData();
     }
   }, [status, session]);
@@ -38,13 +44,15 @@ export default function NewAppointmentPage() {
       // Fetch shops and appointments in parallel
       const [shopsResponse, appointmentsResponse] = await Promise.all([
         getShops(),
-        getAppointments(session?.user?.token || ''),
+        getAppointments(session?.user?.token || ""),
       ]);
 
       setShops(shopsResponse.data || []);
-      setAppointmentCount(appointmentsResponse.count || appointmentsResponse.data?.length || 0);
+      setAppointmentCount(
+        appointmentsResponse.count || appointmentsResponse.data?.length || 0,
+      );
     } catch (err) {
-      setError('Failed to load data. Please try again.');
+      setError("Failed to load data. Please try again.");
       console.error(err);
     } finally {
       setPageLoading(false);
@@ -53,21 +61,21 @@ export default function NewAppointmentPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!selectedShopId) {
-      setError('Please select a massage shop');
+      setError("Please select a massage shop");
       return;
     }
 
     if (!appointmentDate) {
-      setError('Please select a date');
+      setError("Please select a date");
       return;
     }
 
     // Check limit for non-admin users
-    if (session?.user?.role !== 'admin' && appointmentCount >= 3) {
-      setError('You have reached the maximum of 3 appointments');
+    if (session?.user?.role !== "admin" && appointmentCount >= 3) {
+      setError("You have reached the maximum of 3 appointments");
       return;
     }
 
@@ -75,20 +83,22 @@ export default function NewAppointmentPage() {
 
     try {
       await createAppointment(
-        session?.user?.token || '',
+        session?.user?.token || "",
         selectedShopId,
-        appointmentDate
+        appointmentDate,
       );
 
-      router.push('/appointments');
+      router.push("/appointments");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create appointment');
+      setError(
+        err instanceof Error ? err.message : "Failed to create appointment",
+      );
       setLoading(false);
     }
   };
 
-  if (status === 'loading' || pageLoading) {
+  if (status === "loading" || pageLoading) {
     return (
       <div className="page-container">
         <div className="flex items-center justify-center py-20">
@@ -101,12 +111,12 @@ export default function NewAppointmentPage() {
     );
   }
 
-  const isAdmin = session?.user?.role === 'admin';
+  const isAdmin = session?.user?.role === "admin";
   const remainingSlots = 3 - appointmentCount;
   const canBook = isAdmin || remainingSlots > 0;
 
   // Get minimum date (today)
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="page-container">
@@ -122,8 +132,9 @@ export default function NewAppointmentPage() {
         <div className="card p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="text-4xl mb-4">📅</div>
-            <h1 className="text-2xl font-bold text-gray-800">Book Appointment</h1>
+            <h1 className="text-2xl font-bold text-gray-800">
+              Book Appointment
+            </h1>
             <p className="text-gray-600 mt-2">
               Schedule your next massage session
             </p>
@@ -136,7 +147,10 @@ export default function NewAppointmentPage() {
               <p className="text-sm mt-1">
                 You already have 3 appointments. Please cancel one to book more.
               </p>
-              <Link href="/appointments" className="inline-block mt-3 text-sm underline">
+              <Link
+                href="/appointments"
+                className="inline-block mt-3 text-sm underline"
+              >
                 View My Appointments
               </Link>
             </div>
@@ -145,7 +159,10 @@ export default function NewAppointmentPage() {
           {/* Slots Info */}
           {!isAdmin && canBook && (
             <div className="bg-teal-50 border border-teal-200 text-teal-700 px-6 py-4 rounded-lg mb-6 text-center">
-              <p>You have <strong>{remainingSlots}</strong> appointment slot{remainingSlots !== 1 ? 's' : ''} remaining</p>
+              <p>
+                You have <strong>{remainingSlots}</strong> appointment slot
+                {remainingSlots !== 1 ? "s" : ""} remaining
+              </p>
             </div>
           )}
 
@@ -184,16 +201,21 @@ export default function NewAppointmentPage() {
               {selectedShopId && (
                 <div className="bg-gray-50 p-4 rounded-lg">
                   {(() => {
-                    const selectedShop = shops.find((s) => s._id === selectedShopId);
+                    const selectedShop = shops.find(
+                      (s) => s._id === selectedShopId,
+                    );
                     if (!selectedShop) return null;
 
                     const formatTime = (dateString: string) => {
                       try {
-                        return new Date(dateString).toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: true,
-                        });
+                        return new Date(dateString).toLocaleTimeString(
+                          "en-US",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          },
+                        );
                       } catch {
                         return dateString;
                       }
@@ -201,11 +223,18 @@ export default function NewAppointmentPage() {
 
                     return (
                       <div className="space-y-2">
-                        <p className="font-medium text-gray-800">{selectedShop.name}</p>
-                        <p className="text-sm text-gray-600">📍 {selectedShop.address}</p>
-                        <p className="text-sm text-gray-600">📞 {selectedShop.tel || 'N/A'}</p>
+                        <p className="font-medium text-gray-800">
+                          {selectedShop.name}
+                        </p>
                         <p className="text-sm text-gray-600">
-                          🕐 {formatTime(selectedShop.openTime)} - {formatTime(selectedShop.closeTime)}
+                          {selectedShop.address}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {selectedShop.tel || "N/A"}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {formatTime(selectedShop.openTime)} -{" "}
+                          {formatTime(selectedShop.closeTime)}
                         </p>
                       </div>
                     );
@@ -235,7 +264,7 @@ export default function NewAppointmentPage() {
                 disabled={loading}
                 className="w-full btn-primary py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Booking...' : 'Confirm Booking'}
+                {loading ? "Booking..." : "Confirm Booking"}
               </button>
             </form>
           )}

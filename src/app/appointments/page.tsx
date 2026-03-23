@@ -20,8 +20,16 @@ export default function AppointmentsPage() {
       return;
     }
 
-    if (status === 'authenticated' && session?.user?.token) {
-      fetchAppointments();
+    if (status === 'authenticated') {
+      // Redirect admin to admin appointments page
+      if (session?.user?.role === 'admin') {
+        router.push('/admin/appointments');
+        return;
+      }
+      
+      if (session?.user?.token) {
+        fetchAppointments();
+      }
     }
   }, [status, session]);
 
@@ -43,10 +51,16 @@ export default function AppointmentsPage() {
   };
 
   const handleUpdate = (updatedAppt: Appointment) => {
-    setAppointments(
-      appointments.map((appt) =>
-        appt._id === updatedAppt._id ? updatedAppt : appt
-      )
+    setAppointments((prevAppointments) =>
+      prevAppointments.map((appt) => {
+        if (appt._id !== updatedAppt._id) return appt;
+
+        return {
+          ...updatedAppt,
+          user: typeof updatedAppt.user === 'object' ? updatedAppt.user : appt.user,
+          shop: typeof updatedAppt.shop === 'object' ? updatedAppt.shop : appt.shop,
+        };
+      })
     );
   };
 
@@ -72,7 +86,7 @@ export default function AppointmentsPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            My Appointments 📅
+            My Appointments
           </h1>
           <p className="text-gray-600">
             {isAdmin
@@ -92,7 +106,6 @@ export default function AppointmentsPage() {
       {!isAdmin && appointments.length >= 3 && (
         <div className="bg-amber-50 border border-amber-200 text-amber-700 px-6 py-4 rounded-lg mb-6">
           <div className="flex items-center gap-2">
-            <span className="text-xl">⚠️</span>
             <p>You&apos;ve reached the maximum of 3 appointments. Cancel one to book more.</p>
           </div>
         </div>
@@ -108,7 +121,6 @@ export default function AppointmentsPage() {
       {/* Empty State */}
       {appointments.length === 0 && (
         <div className="text-center py-16">
-          <div className="text-6xl mb-4">📋</div>
           <h2 className="text-xl font-semibold text-gray-700 mb-2">
             No Appointments Yet
           </h2>
