@@ -8,6 +8,10 @@ import updateAppointment from '@/libs/updateAppointment';
 import { Appointment, Shop, User } from '../../../../interfaces';
 
 export default function AdminAppointmentsPage() {
+  type SortKey = 'user' | 'shop' | 'date';
+  type SortDirection = 'asc' | 'desc';
+  type SortConfig = { key: SortKey; direction: SortDirection };
+
   const { data: session, status } = useSession();
   const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -16,6 +20,7 @@ export default function AdminAppointmentsPage() {
   const [error, setError] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDate, setEditDate] = useState('');
+  const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -114,6 +119,69 @@ export default function AdminAppointmentsPage() {
     return typeof user === 'object' ? user.email : '';
   };
 
+  const getComparableUserName = (user: string | User) => {
+    if (typeof user === 'object' && user?.name) return user.name;
+    return '';
+  };
+
+  const getComparableShopName = (shop: string | Shop) => {
+    if (typeof shop === 'object' && shop?.name) return shop.name;
+    return '';
+  };
+
+  const getComparableDateValue = (dateString: string | null | undefined) => {
+    if (!dateString) return Number.POSITIVE_INFINITY;
+    const timeValue = new Date(dateString).getTime();
+    return Number.isNaN(timeValue) ? Number.POSITIVE_INFINITY : timeValue;
+  };
+
+  const handleSort = (key: SortKey) => {
+    setSortConfig((prevConfig) => {
+      if (!prevConfig || prevConfig.key !== key) {
+        return { key, direction: 'asc' };
+      }
+
+      if (prevConfig.direction === 'asc') {
+        return { key, direction: 'desc' };
+      }
+
+      return null;
+    });
+  };
+
+  const getSortIcon = (key: SortKey) => {
+    if (!sortConfig || sortConfig.key !== key) return '⇅';
+    return sortConfig.direction === 'asc' ? '↑' : '↓';
+  };
+
+  const sortedAppointments = [...appointments].sort((a, b) => {
+    if (!sortConfig) return 0;
+
+    let comparison = 0;
+
+    if (sortConfig.key === 'user') {
+      comparison = getComparableUserName(a.user).localeCompare(
+        getComparableUserName(b.user),
+        undefined,
+        { sensitivity: 'base' }
+      );
+    }
+
+    if (sortConfig.key === 'shop') {
+      comparison = getComparableShopName(a.shop).localeCompare(
+        getComparableShopName(b.shop),
+        undefined,
+        { sensitivity: 'base' }
+      );
+    }
+
+    if (sortConfig.key === 'date') {
+      comparison = getComparableDateValue(a.apptDate) - getComparableDateValue(b.apptDate);
+    }
+
+    return sortConfig.direction === 'asc' ? comparison : -comparison;
+  });
+
   if (status === 'loading' || loading) {
     return (
       <div className="page-container">
@@ -169,13 +237,37 @@ export default function AdminAppointmentsPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
+                    <button
+                      onClick={() => handleSort('user')}
+                      className={`inline-flex items-center gap-1 hover:text-gray-700 cursor-pointer ${
+                        sortConfig?.key === 'user' ? 'text-gray-700' : ''
+                      }`}
+                    >
+                      <span>User</span>
+                      <span className="text-[10px] leading-none">{getSortIcon('user')}</span>
+                    </button>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Shop
+                    <button
+                      onClick={() => handleSort('shop')}
+                      className={`inline-flex items-center gap-1 hover:text-gray-700 cursor-pointer ${
+                        sortConfig?.key === 'shop' ? 'text-gray-700' : ''
+                      }`}
+                    >
+                      <span>Shop</span>
+                      <span className="text-[10px] leading-none">{getSortIcon('shop')}</span>
+                    </button>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
+                    <button
+                      onClick={() => handleSort('date')}
+                      className={`inline-flex items-center gap-1 hover:text-gray-700 cursor-pointer ${
+                        sortConfig?.key === 'date' ? 'text-gray-700' : ''
+                      }`}
+                    >
+                      <span>Date</span>
+                      <span className="text-[10px] leading-none">{getSortIcon('date')}</span>
+                    </button>
                   </th>
                   <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -183,7 +275,7 @@ export default function AdminAppointmentsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {appointments.map((appt) => (
+                {sortedAppointments.map((appt) => (
                   <tr key={appt._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div>
