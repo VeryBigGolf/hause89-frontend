@@ -27,7 +27,7 @@ export default function AdminShopsPage() {
 
     if (status === 'authenticated') {
       if (session?.user?.role !== 'admin') {
-        router.push('/dashboard');
+        router.push('/shops');
         return;
       }
       fetchShops();
@@ -103,11 +103,16 @@ export default function AdminShopsPage() {
 
   const formatTime = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      });
+      // Extract time from ISO format (YYYY-MM-DDTHH:mm:ssZ) without timezone conversion
+      const timeMatch = dateString.match(/T(\d{2}):(\d{2})/);
+      if (timeMatch) {
+        const hours = parseInt(timeMatch[1], 10);
+        const minutes = timeMatch[2];
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+        return `${displayHours}:${minutes} ${period}`;
+      }
+      return dateString;
     } catch {
       return dateString;
     }
@@ -132,7 +137,7 @@ export default function AdminShopsPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Manage Shops ⚙️
+            Manage Shops
           </h1>
           <p className="text-gray-600">
             Add, edit, or remove massage shops from the platform
@@ -171,7 +176,6 @@ export default function AdminShopsPage() {
       {/* Empty State */}
       {shops.length === 0 && !showForm && (
         <div className="text-center py-16">
-          <div className="text-6xl mb-4">🏪</div>
           <h2 className="text-xl font-semibold text-gray-700 mb-2">
             No Shops Yet
           </h2>
@@ -212,9 +216,6 @@ export default function AdminShopsPage() {
                 <tr key={shop._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center">
-                        <span className="text-lg">💆</span>
-                      </div>
                       <span className="font-medium text-gray-900">{shop.name}</span>
                     </div>
                   </td>

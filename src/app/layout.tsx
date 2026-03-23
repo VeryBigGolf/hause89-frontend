@@ -7,8 +7,8 @@ import NextAuthProvider from '@/providers/NextAuthProvider';
 import TopMenu from '@/components/TopMenu';
 
 export const metadata: Metadata = {
-  title: 'Serenity Spa - Massage Reservation',
-  description: 'Book your perfect massage experience at top-rated spas near you',
+  title: 'Hause89 Spa',
+  description: 'Book your perfect massage experience at top-rated',
 };
 
 export default async function RootLayout({
