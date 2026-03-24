@@ -22,11 +22,9 @@ export default function TopMenu() {
 
         {/* Desktop Navigation */}
         <div className={styles.desktopNav}>
-          {session?.user.role === "user" && (
-            <Link href="/shops" className={styles.navLink}>
-              Massage Shops
-            </Link>
-          )}
+          <Link href="/shops" className={styles.navLink}>
+            Massage Shops
+          </Link>
 
           {session?.user ? (
             <>
@@ -83,11 +81,9 @@ export default function TopMenu() {
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <div className={styles.mobileNav}>
-          {session?.user.role === "user" && (
-            <Link href="/shops" className={styles.navLink}>
-              Massage Shops
-            </Link>
-          )}
+          <Link href="/shops" className={styles.mobileNavLink}>
+            Massage Shops
+          </Link>
 
           {session?.user ? (
             <>
