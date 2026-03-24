@@ -134,6 +134,7 @@ export default function RegisterPage() {
               id="tel"
               name="tel"
               type="tel"
+              pattern="^[0-9]{10}$"
               value={formData.tel}
               onChange={handleChange}
               className="input-field"
