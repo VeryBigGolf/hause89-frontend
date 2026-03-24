@@ -1,13 +1,13 @@
-'use client';
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import getShops from '@/libs/getShops';
-import createShop from '@/libs/createShop';
-import updateShop from '@/libs/updateShop';
-import deleteShop from '@/libs/deleteShop';
-import { Shop } from '../../../../interfaces';
-import ShopForm from '@/components/ShopForm';
+"use client";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import getShops from "@/libs/getShops";
+import createShop from "@/libs/createShop";
+import updateShop from "@/libs/updateShop";
+import deleteShop from "@/libs/deleteShop";
+import { Shop } from "../../../../interfaces";
+import ShopForm from "@/components/ShopForm";
 
 export default function AdminShopsPage() {
   const { data: session, status } = useSession();
@@ -15,19 +15,19 @@ export default function AdminShopsPage() {
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
+    if (status === "unauthenticated") {
+      router.push("/login");
       return;
     }
 
-    if (status === 'authenticated') {
-      if (session?.user?.role !== 'admin') {
-        router.push('/shops');
+    if (status === "authenticated") {
+      if (session?.user?.role !== "admin") {
+        router.push("/shops");
         return;
       }
       fetchShops();
@@ -40,17 +40,17 @@ export default function AdminShopsPage() {
       const response = await getShops();
       setShops(response.data || []);
     } catch (err) {
-      setError('Failed to load shops');
+      setError("Failed to load shops");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreate = async (data: Omit<Shop, '_id'>) => {
+  const handleCreate = async (data: Omit<Shop, "_id">) => {
     setActionLoading(true);
     try {
-      const response = await createShop(session?.user?.token || '', data);
+      const response = await createShop(session?.user?.token || "", data);
       setShops([...shops, response.data]);
       setShowForm(false);
     } catch (err) {
@@ -60,12 +60,18 @@ export default function AdminShopsPage() {
     }
   };
 
-  const handleUpdate = async (data: Omit<Shop, '_id'>) => {
+  const handleUpdate = async (data: Omit<Shop, "_id">) => {
     if (!editingShop) return;
     setActionLoading(true);
     try {
-      const response = await updateShop(session?.user?.token || '', editingShop._id, data);
-      setShops(shops.map((s) => (s._id === editingShop._id ? response.data : s)));
+      const response = await updateShop(
+        session?.user?.token || "",
+        editingShop._id,
+        data,
+      );
+      setShops(
+        shops.map((s) => (s._id === editingShop._id ? response.data : s)),
+      );
       setEditingShop(null);
       setShowForm(false);
     } catch (err) {
@@ -76,16 +82,20 @@ export default function AdminShopsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this shop? All appointments will also be deleted.')) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this shop? All appointments will also be deleted.",
+      )
+    ) {
       return;
     }
 
     setActionLoading(true);
     try {
-      await deleteShop(session?.user?.token || '', id);
+      await deleteShop(session?.user?.token || "", id);
       setShops(shops.filter((s) => s._id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete shop');
+      setError(err instanceof Error ? err.message : "Failed to delete shop");
     } finally {
       setActionLoading(false);
     }
@@ -108,7 +118,7 @@ export default function AdminShopsPage() {
       if (timeMatch) {
         const hours = parseInt(timeMatch[1], 10);
         const minutes = timeMatch[2];
-        const period = hours >= 12 ? 'PM' : 'AM';
+        const period = hours >= 12 ? "PM" : "AM";
         const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
         return `${displayHours}:${minutes} ${period}`;
       }
@@ -118,7 +128,7 @@ export default function AdminShopsPage() {
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="page-container">
         <div className="flex items-center justify-center py-20">
@@ -139,9 +149,6 @@ export default function AdminShopsPage() {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Manage Shops
           </h1>
-          <p className="text-gray-600">
-            Add, edit, or remove massage shops from the platform
-          </p>
         </div>
 
         {!showForm && (
@@ -155,7 +162,7 @@ export default function AdminShopsPage() {
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-lg mb-8">
           {error}
-          <button onClick={() => setError('')} className="ml-4 underline">
+          <button onClick={() => setError("")} className="ml-4 underline">
             Dismiss
           </button>
         </div>
@@ -216,15 +223,15 @@ export default function AdminShopsPage() {
                 <tr key={shop._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <span className="font-medium text-gray-900">{shop.name}</span>
+                      <span className="font-medium text-gray-900">
+                        {shop.name}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-500 max-w-xs truncate">
                     {shop.address}
                   </td>
-                  <td className="px-6 py-4 text-gray-500">
-                    {shop.tel || '-'}
-                  </td>
+                  <td className="px-6 py-4 text-gray-500">{shop.tel || "-"}</td>
                   <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
                     {formatTime(shop.openTime)} - {formatTime(shop.closeTime)}
                   </td>

@@ -17,12 +17,16 @@ export default function ShopCard({
   // Format time helper
   const formatTime = (dateString: string) => {
     try {
-      const date = new Date(dateString);
-      return date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
+      // Extract time from ISO format (YYYY-MM-DDTHH:mm:ssZ) without timezone conversion
+      const timeMatch = dateString.match(/T(\d{2}):(\d{2})/);
+      if (timeMatch) {
+        const hours = parseInt(timeMatch[1], 10);
+        const minutes = timeMatch[2];
+        const period = hours >= 12 ? "PM" : "AM";
+        const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+        return `${displayHours}:${minutes} ${period}`;
+      }
+      return dateString;
     } catch {
       return dateString;
     }
